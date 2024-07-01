@@ -1,43 +1,42 @@
 from collections import defaultdict
 from datetime import datetime
 
-def generate_monthly_report(data):
-    print("\nGenerating Monthly Spending Report:")
+class ReportManager:
+    def __init__(self, expense_manager):
+        self.expense_manager = expense_manager
 
-    if not data["expenses"]:
-        print("No expenses added yet.")
-        return
-
-    monthly_expenses = defaultdict(float)
-    for expense in data["expenses"]:
-        try:
+    def generate_monthly_report(self):
+        report_lines = []
+        monthly_expenses = defaultdict(float)
+        expenses = self.expense_manager.get_expenses()
+        
+        for expense in expenses:
             expense_date = datetime.strptime(expense["date"], "%Y-%m-%d")
             month_year = expense_date.strftime("%B %Y")
             monthly_expenses[month_year] += expense["amount"]
-        except ValueError:
-            print(f"Ignoring expense with invalid date format: {expense}")
 
-    if monthly_expenses:
-        print("Monthly Spending:")
-        for month_year, total in monthly_expenses.items():
-            print(f"{month_year}: ${total:.2f}")
-    else:
-        print("No valid expenses found for reporting.")
+        if monthly_expenses:
+            report_lines.append("Monthly Spending Report:\n")
+            for month_year, total in monthly_expenses.items():
+                report_lines.append(f"{month_year}: ${total:.2f}\n")
+        else:
+            report_lines.append("No expenses found for reporting.\n")
 
-def generate_category_report(data):
-    print("\nGenerating Category-wise Spending Report:")
+        return "".join(report_lines)
 
-    if not data["expenses"]:
-        print("No expenses added yet.")
-        return
+    def generate_category_report(self):
+        report_lines = []
+        category_expenses = defaultdict(float)
+        expenses = self.expense_manager.get_expenses()
 
-    category_expenses = defaultdict(float)
-    for expense in data["expenses"]:
-        category_expenses[expense["category"]] += expense["amount"]
+        for expense in expenses:
+            category_expenses[expense["category"]] += expense["amount"]
 
-    if category_expenses:
-        print("Category-wise Spending:")
-        for category, total in category_expenses.items():
-            print(f"{category}: ${total:.2f}")
-    else:
-        print("No expenses found for reporting.")
+        if category_expenses:
+            report_lines.append("Category-wise Spending Report:\n")
+            for category, total in category_expenses.items():
+                report_lines.append(f"{category}: ${total:.2f}\n")
+        else:
+            report_lines.append("No expenses found for reporting.\n")
+
+        return "".join(report_lines)
